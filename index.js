@@ -15,6 +15,7 @@ const s3 = new AWS.S3();
 // Endpoint para recibir datos y enviarlos a MortgageBot
 app.get('/enviar-a-mortgagebot', async (req, res) => {
   const { loanId, bucket, key } = req.query;
+  console.log('Se recibio una solicitud');
 
   try {
     const documentoBase64 = await getDocumentFromS3(bucket, key);
@@ -85,7 +86,7 @@ const getDocumentFromS3 = async (bucket, key) => {
   }
 };
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
