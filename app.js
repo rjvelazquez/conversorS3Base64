@@ -26,7 +26,6 @@ app.get('/enviar-a-mortgagebot', async (req, res) => {
 
   try {
     const documentoBase64 = await getDocumentFromS3(String(bucket), String(key));
-    console.log(documentoBase64);
     const accessToken = await obtenerAccessToken();
     const respuestaMortgageBot = await enviarADocumentoMortgageBot(loanId, documentoBase64, accessToken);
 
@@ -106,17 +105,16 @@ const getDocumentFromS3 = async (bucket, key) => {
 
   try {
     const { ContentType, Body } = await client.send(command);
+    console.log(Body);
     const documentoBase64 = Body.toString('base64');
-
-    // Extraer la extensión del archivo del ContentType
     const fileType = ContentType.split('/').pop();
-
     return { documentoBase64, fileType };
   } catch (error) {
     console.error('Error al obtener el documento de S3:', error);
     throw error;
   }
 };
+
 
 
 const PORT = process.env.PORT || 8081;
