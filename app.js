@@ -97,8 +97,11 @@ const getDocumentFromS3 = async (bucket, key) => {
 
   try {
     const { ContentType, Body } = await client.send(command);
-    const fileType = // Mapea ContentType a fileType según tus necesidades
     const documentoBase64 = Body.toString('base64');
+
+    // Extraer la extensión del archivo del ContentType
+    const fileType = ContentType.split('/').pop();
+
     return { documentoBase64, fileType };
   } catch (error) {
     console.error('Error al obtener el documento de S3:', error);
