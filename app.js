@@ -20,6 +20,7 @@ const s3 = new S3Client({
 app.get('/enviar-a-mortgagebot', async (req, res) => {
   const { loanId, bucket, key } = req.query;
   console.log('Se recibio una solicitud');
+  console.log('Bucket:', bucket, 'Key:', key);
 
   try {
     const documentoBase64 = await getDocumentFromS3(bucket, key);
@@ -82,6 +83,11 @@ const enviarADocumentoMortgageBot = async (loanId, bucket, key, accessToken) => 
 };
 
 const getDocumentFromS3 = async (bucket, key) => {
+  // Asegúrate de que bucket y key no sean undefined
+  if (!bucket || !key) {
+    throw new Error('Bucket o Key no proporcionados');
+  }
+
   const client = new S3Client({
     region: process.env.AWS_REGION,
     credentials: {
