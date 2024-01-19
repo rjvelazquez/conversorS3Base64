@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
-const { S3Client } = require('@aws-sdk/client-s3');
+const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
 const app = express();
 
 
@@ -80,15 +80,28 @@ const enviarADocumentoMortgageBot = async (loanId, documentoBase64, accessToken)
 };
 
 const getDocumentFromS3 = async (bucket, key) => {
+  const client = new S3Client({
+    region: process.env.AWS_REGION,
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    }
+  });
+
+  const command = new GetObjectCommand({
+    Bucket: bucket,
+    Key: key
+  });
+
   try {
-    const params = { Bucket: bucket, Key: key };
-    const data = await s3.getObject(params).promise();
+    const data = await client.send(command);
     return data.Body.toString('base64');
   } catch (error) {
     console.error('Error al obtener el documento de S3:', error);
     throw error;
   }
 };
+
 
 const PORT = process.env.PORT || 8081;
 app.listen(PORT, () => {
