@@ -4,13 +4,18 @@ const axios = require('axios');
 const AWS = require('@aws-sdk/client-s3');
 const app = express();
 
-// Configura AWS con las credenciales y la región desde las variables de entorno
-AWS.config.update({
-  region: process.env.AWS_REGION,
+
+
+// Configura AWS SDK v3
+const s3 = new S3Client({
+  region: 'us-east-1',
+  credentials: {
+
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  }
 });
-const s3 = new AWS.S3();
+
 
 // Endpoint para recibir datos y enviarlos a MortgageBot
 app.get('/enviar-a-mortgagebot', async (req, res) => {
