@@ -7,7 +7,7 @@ const app = express();
 
 
 // Configura AWS SDK v3
-const s3 = new S3Client({
+const s3 = new AWS({
   region: 'us-east-1',
   credentials: {
 
