@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
-const AWS = require('aws-sdk');
+const AWS = require('@aws-sdk/client-s3');
 const app = express();
 
 // Configura AWS con las credenciales y la región desde las variables de entorno
