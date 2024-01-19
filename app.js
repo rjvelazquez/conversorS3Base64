@@ -56,15 +56,17 @@ const obtenerAccessToken = async () => {
   }
 };
 
-const enviarADocumentoMortgageBot = async (loanId, documentoBase64, accessToken) => {
+const enviarADocumentoMortgageBot = async (loanId, bucket, key, accessToken) => {
+  const { documentoBase64, fileType } = await getDocumentFromS3(bucket, key);
+
   const url = `https://api.fusionfabric.cloud/mortgagebot/los/document/v1/loans/${loanId}/documents`;
   const data = {
-    documentType: 'ID',
-    useBarcode: 'true',
-    fileType: 'pdf',
+    documentType: 'ID', // Ajusta según sea necesario
+    useBarcode: 'true', // Ajusta según sea necesario
+    fileType: fileType,
     embeddedContent: documentoBase64,
+    name: key, // Suponiendo que 'key' es el nombre del archivo
   };
-
   try {
     const response = await axios.post(url, data, {
       headers: {
@@ -94,8 +96,10 @@ const getDocumentFromS3 = async (bucket, key) => {
   });
 
   try {
-    const data = await client.send(command);
-    return data.Body.toString('base64');
+    const { ContentType, Body } = await client.send(command);
+    const fileType = // Mapea ContentType a fileType según tus necesidades
+    const documentoBase64 = Body.toString('base64');
+    return { documentoBase64, fileType };
   } catch (error) {
     console.error('Error al obtener el documento de S3:', error);
     throw error;
