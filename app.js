@@ -103,11 +103,18 @@ const getDocumentFromS3 = async (bucket, key) => {
     Key: key
   });
 
+  
   try {
     const { ContentType, Body } = await client.send(command);
-    console.log(Body);
-    const documentoBase64 = Body.toString('base64');
+    
+    // Recopilar datos del stream en un buffer
+    const buffer = await streamToBuffer(Body);
+
+    // Convertir el buffer a base64
+    const documentoBase64 = buffer.toString('base64');
+    
     const fileType = ContentType.split('/').pop();
+
     return { documentoBase64, fileType };
   } catch (error) {
     console.error('Error al obtener el documento de S3:', error);
@@ -115,6 +122,16 @@ const getDocumentFromS3 = async (bucket, key) => {
   }
 };
 
+
+// Función para convertir un stream a un buffer
+function streamToBuffer(stream) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    stream.on('data', chunk => chunks.push(chunk));
+    stream.on('end', () => resolve(Buffer.concat(chunks)));
+    stream.on('error', reject);
+  });
+}
 
 
 const PORT = process.env.PORT || 8081;
