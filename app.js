@@ -25,8 +25,6 @@ app.get('/enviar-a-mortgagebot', async (req, res) => {
 
 
   try {
-    const documentoBase64 = await getDocumentFromS3(bucket, key);
-    console.log('Bucket:', bucket);
     const accessToken = await obtenerAccessToken();
     const respuestaMortgageBot = await enviarADocumentoMortgageBot(loanId, documentoBase64, accessToken);
 
@@ -99,12 +97,11 @@ const getDocumentFromS3 = async (bucket, key) => {
     }
   });
 
-  
-
-  
+    
+  try {
     
     const command = new GetObjectCommand({Bucket: bucket, Key: key });
-    const { Body } = await client.send(command);
+    const { ContentType, Body } = await client.send(command);
     
     // Recopilar datos del stream en un buffer
     const buffer = await streamToBuffer(Body);
@@ -113,11 +110,17 @@ const getDocumentFromS3 = async (bucket, key) => {
     const documentoBase64 = buffer.toString('base64');
     
     
-    //const fileType = ContentType.split('/').pop();
-   
+    const fileType = ContentType.split('/').pop();
 
-    return { documentoBase64};
-
+    return { documentoBase64, fileType };
+  } catch (error) {
+    if (error.message.includes("bucketName.split")) {
+      console.error("Error específico con el bucket:", bucket);
+      console.error(bucket);
+      console.log(bucket);
+    }
+    throw error;
+  }
 };
 
 
