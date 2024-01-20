@@ -102,7 +102,7 @@ const getDocumentFromS3 = async (bucket, key) => {
 
   
   try {
-    console.log(bucket);
+    bucket = bucket.toString;
     const command = new GetObjectCommand({Bucket: bucket, Key: key });
     const { ContentType, Body } = await client.send(command);
     
