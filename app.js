@@ -88,7 +88,7 @@ const enviarADocumentoMortgageBot = async (loanId, bucket, key, accessToken) => 
   form.append('fileType', fileType); // 'pdf', 'png', etc.
   form.append('embeddedContent', documentoBase64, {
     filename: key, 
-    contentType: fileType, // Asegúrate de que fileType tenga el MIME type correcto
+    contentType: 'pdf', // Asegúrate de que fileType tenga el MIME type correcto
     knownLength: documentoBase64.length
   });
 
