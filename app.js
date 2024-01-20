@@ -65,7 +65,7 @@ const enviarADocumentoMortgageBot = async (loanId, bucket, key, accessToken) => 
   const data = {
     documentType: 'ID', // Ajusta según sea necesario
     useBarcode: 'true', // Ajusta según sea necesario
-    fileType: fileType,
+    fileType: 'pdf',
     embeddedContent: documentoBase64,
   };
   try {
