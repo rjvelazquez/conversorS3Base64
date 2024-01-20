@@ -87,11 +87,7 @@ const enviarADocumentoMortgageBot = async (loanId, bucket, key, accessToken) => 
   form.append('documentType', 'ID'); // Ajusta este valor si es necesario
   form.append('useBarcode', 'true'); // Ajusta este valor si es necesario
   form.append('fileType', 'pdf'); // 'pdf', 'png', etc.
-  form.append('embeddedContent', documentoBase64, {
-    filename: key, 
-    contentType: fileType, // Asegúrate de que fileType tenga el MIME type correcto
-    knownLength: documentoBase64.length
-  });
+  form.append('embeddedContent', documentoBase64);
 
   // Genera un Idempotency-Key único para cada solicitud
   const idempotencyKey = generateIdempotencyKey();
