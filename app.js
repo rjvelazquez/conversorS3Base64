@@ -25,7 +25,7 @@ app.get('/enviar-a-mortgagebot', async (req, res) => {
 
 
   try {
-    const documentoBase64 = await getDocumentFromS3(String(bucket), String(key));
+    const documentoBase64 = await getDocumentFromS3(bucket, key);
     const accessToken = await obtenerAccessToken();
     const respuestaMortgageBot = await enviarADocumentoMortgageBot(loanId, documentoBase64, accessToken);
 
@@ -102,7 +102,6 @@ const getDocumentFromS3 = async (bucket, key) => {
 
   
   try {
-    bucket = bucket.toString();
     
     console.log(bucket);
     const command = new GetObjectCommand({Bucket: bucket, Key: key });
