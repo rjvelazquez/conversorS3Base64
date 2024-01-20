@@ -114,11 +114,13 @@ const getDocumentFromS3 = async (bucket, key) => {
     
     
     const fileType = ContentType.split('/').pop();
-    console.log(fileType);
+    console.log(key);
 
     return { documentoBase64, fileType };
   } catch (error) {
-    console.error('Error al obtener el documento de S3:', error);
+    if (error.message.includes("bucketName.split")) {
+      console.error("Error específico con el bucket:", bucket);
+    }
     throw error;
   }
 };
