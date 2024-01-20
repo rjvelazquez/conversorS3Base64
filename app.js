@@ -26,29 +26,29 @@ app.get('/enviar-a-mortgagebot', async (req, res) => {
   try {
     const accessToken = await obtenerAccessToken();
     const respuestaMortgageBot = await enviarADocumentoMortgageBot(loanId, bucket, key, accessToken);
+    console.log('Respuesta de MortgageBot:', respuestaMortgageBot);
 
     res.json({ mensaje: 'Documento enviado con éxito', respuesta: respuestaMortgageBot });
   } catch (error) {
     console.error('Error al procesar la solicitud:', error);
-
     let errorMessage = 'Error desconocido al procesar la solicitud';
+    let mortgageBotResponse = {};
 
-    // Construir el mensaje de error basado en la respuesta del servidor o el error generado
+    // Obtener respuesta de MortgageBot si está disponible
     if (error.response) {
-      // La solicitud fue hecha y el servidor respondió con un estado de error
-      errorMessage = `Error del servidor: ${error.response.status} - ${error.response.data}`;
+      mortgageBotResponse = error.response.data;
+      errorMessage = `Error del servidor: ${error.response.status} - ${JSON.stringify(mortgageBotResponse)}`;
     } else if (error.request) {
-      // La solicitud fue hecha pero no se recibió respuesta
       errorMessage = 'Error: No se recibió respuesta del servidor';
     } else {
-      // Algo ocurrió al configurar la solicitud que generó un Error
       errorMessage = `Error al configurar la solicitud: ${error.message}`;
     }
 
-    // Enviar el mensaje de error en la respuesta HTTP
+    console.log('Respuesta de MortgageBot (en caso de error):', mortgageBotResponse);
     res.status(500).send(errorMessage);
   }
 });
+
 
 
 const obtenerAccessToken = async () => {
