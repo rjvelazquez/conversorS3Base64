@@ -108,14 +108,15 @@ const getDocumentFromS3 = async (bucket, key) => {
     const { ContentType, Body } = await client.send(command);
     
     // Recopilar datos del stream en un buffer
-    const buffer = await streamToBuffer(Body);
+    //const buffer = await streamToBuffer(Body);
 
     // Convertir el buffer a base64
-    const documentoBase64 = buffer.toString('base64');
+    //const documentoBase64 = buffer.toString('base64');
     
-    const fileType = ContentType.split('/').pop();
-
-    return { documentoBase64, fileType };
+    //const fileType = ContentType.split('/').pop();
+    console.log(Body);
+    return { Body };
+    //return { documentoBase64, fileType };
   } catch (error) {
     console.error('Error al obtener el documento de S3:', error);
     throw error;
