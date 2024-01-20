@@ -58,21 +58,28 @@ const obtenerAccessToken = async () => {
   }
 };
 
+const FormData = require('form-data');
+
 const enviarADocumentoMortgageBot = async (loanId, bucket, key, accessToken) => {
   const { documentoBase64, fileType } = await getDocumentFromS3(bucket, key);
 
   const url = `https://api.fusionfabric.cloud/mortgagebot/los/document/v1/loans/${loanId}/documents`;
-  const data = {
-    documentType: 'ID', // Ajusta según sea necesario
-    useBarcode: 'true', // Ajusta según sea necesario
-    fileType: 'pdf',
-    embeddedContent: documentoBase64,
-  };
+  
+  const form = new FormData();
+  form.append('documentType', 'ID'); // Ajusta este valor si es necesario
+  form.append('useBarcode', 'true'); // Ajusta este valor si es necesario
+  form.append('fileType', fileType); // 'pdf', 'png', etc.
+  form.append('embeddedContent', documentoBase64, {
+    filename: key, 
+    contentType: 'pdf',
+    knownLength: documentoBase64.length
+  });
+
   try {
-    const response = await axios.post(url, data, {
+    const response = await axios.post(url, form, {
       headers: {
         'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'multipart/form-dataas'
+        ...form.getHeaders(),
       }
     });
     return response.data;
