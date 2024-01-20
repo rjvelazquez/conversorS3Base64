@@ -87,16 +87,19 @@ const enviarADocumentoMortgageBot = async (loanId, bucket, key, accessToken) => 
   form.append('fileType', fileType); // 'pdf', 'png', etc.
   form.append('embeddedContent', documentoBase64, {
     filename: key, 
-    contentType: 'pdf',
+    contentType: fileType, // Asegúrate de que fileType tenga el MIME type correcto
     knownLength: documentoBase64.length
   });
+
+  // Genera un Idempotency-Key único para cada solicitud
+  const idempotencyKey = generateIdempotencyKey();
 
   try {
     const response = await axios.post(url, form, {
       headers: {
         'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'multipart/form-datas',
         ...form.getHeaders(),
+        'Idempotency-Key': idempotencyKey
       }
     });
     return response.data;
@@ -105,6 +108,11 @@ const enviarADocumentoMortgageBot = async (loanId, bucket, key, accessToken) => 
     throw error;
   }
 };
+const { v4: uuidv4 } = require('uuid');
+
+function generateIdempotencyKey() {
+  return uuidv4(); // Esto generará un UUID v4 único
+}
 
 const getDocumentFromS3 = async (bucket, key) => {
   // Asegúrate de que bucket y key no sean undefined
