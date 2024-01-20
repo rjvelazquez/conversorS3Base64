@@ -86,7 +86,7 @@ const enviarADocumentoMortgageBot = async (loanId, bucket, key, accessToken) => 
   const form = new FormData();
   form.append('documentType', 'ID'); // Ajusta este valor si es necesario
   form.append('useBarcode', 'true'); // Ajusta este valor si es necesario
-  form.append('fileType', fileType); // 'pdf', 'png', etc.
+  form.append('fileType', 'pdf'); // 'pdf', 'png', etc.
   form.append('embeddedContent', documentoBase64, {
     filename: key, 
     contentType: fileType, // Asegúrate de que fileType tenga el MIME type correcto
@@ -101,7 +101,6 @@ const enviarADocumentoMortgageBot = async (loanId, bucket, key, accessToken) => 
     if (!documentoBase64) {
       throw new Error('El documento en Base64 está vacío');
     }
-    console.log('Documento en Base64:', documentoBase64); // Muestra una parte del documento para no sobrecargar los logs
 
     const response = await axios.post(url, form, {
       headers: {
