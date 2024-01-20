@@ -86,7 +86,7 @@ const enviarADocumentoMortgageBot = async (loanId, bucket, key, accessToken) => 
   const form = new FormData();
   form.append('documentType', 'ID'); // Ajusta este valor si es necesario
   form.append('useBarcode', 'true'); // Ajusta este valor si es necesario
-  form.append('fileType', 'pdf'); // 'pdf', 'png', etc.
+  form.append('fileType', fileType); // 'pdf', 'png', etc.
   form.append('embeddedContent', documentoBase64);
 
   // Genera un Idempotency-Key único para cada solicitud
@@ -131,35 +131,28 @@ const getDocumentFromS3 = async (bucket, key) => {
     }
   });
 
-    
   try {
-
-
-    
     const command = new GetObjectCommand({Bucket: bucket, Key: key });
     const { ContentType, Body } = await client.send(command);
     const buffer = await streamToBuffer(Body);
   
-    // Usa ContentType como fallback
-    const mimeType = ContentType || 'application/octet-stream';
-      // En el try catch de getDocumentFromS3
     if (!buffer) {
       throw new Error('No se pudo obtener el buffer del documento de S3');
     }
 
+    // Extraer la extensión del archivo del nombre del archivo (key)
+    const extension = key.split('.').pop();
 
-  // Convertir el buffer a base64
-  const documentoBase64 = buffer.toString('base64');
+    // Convertir el buffer a base64
+    const documentoBase64 = buffer.toString('base64');
 
-  return { documentoBase64, fileType: mimeType };
+    return { documentoBase64, fileType: extension };
   } catch (error) {
-    if (error.message.includes("bucketName.split")) {
-      console.error("Error específico con el bucket:", bucket);
-      console.error(bucket);
-    }
+    console.error("Error al obtener el documento de S3:", error);
     throw error;
   }
 };
+
 
 
 // Función para convertir un stream a un buffer
