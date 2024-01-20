@@ -26,6 +26,7 @@ app.get('/enviar-a-mortgagebot', async (req, res) => {
 
   try {
     const documentoBase64 = await getDocumentFromS3(bucket, key);
+    console.log('Bucket:', bucket);
     const accessToken = await obtenerAccessToken();
     const respuestaMortgageBot = await enviarADocumentoMortgageBot(loanId, documentoBase64, accessToken);
 
@@ -102,21 +103,18 @@ const getDocumentFromS3 = async (bucket, key) => {
 
   
     
-    console.log(bucket);
     const command = new GetObjectCommand({Bucket: bucket, Key: key });
     const { Body } = await client.send(command);
     
-    console.log(bucket);
     // Recopilar datos del stream en un buffer
     const buffer = await streamToBuffer(Body);
 
-    console.log(bucket);
     // Convertir el buffer a base64
     const documentoBase64 = buffer.toString('base64');
     
     
     //const fileType = ContentType.split('/').pop();
-    console.log(key);
+   
 
     return { documentoBase64};
 
