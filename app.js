@@ -26,7 +26,7 @@ app.get('/enviar-a-mortgagebot', async (req, res) => {
 
   try {
     const accessToken = await obtenerAccessToken();
-    const respuestaMortgageBot = await enviarADocumentoMortgageBot(loanId, documentoBase64, accessToken);
+    const respuestaMortgageBot = await enviarADocumentoMortgageBot(loanId, bucket, key, accessToken);
 
     res.json({ mensaje: 'Documento enviado con éxito', respuesta: respuestaMortgageBot });
   } catch (error) {
