@@ -79,6 +79,7 @@ const FormData = require('form-data');
 
 const enviarADocumentoMortgageBot = async (loanId, bucket, key, accessToken) => {
   const { documentoBase64, fileType } = await getDocumentFromS3(bucket, key);
+  
 
   const url = `https://api.fusionfabric.cloud/mortgagebot/los/document/v1/loans/${loanId}/documents`;
   
@@ -96,6 +97,10 @@ const enviarADocumentoMortgageBot = async (loanId, bucket, key, accessToken) => 
   const idempotencyKey = generateIdempotencyKey();
 
   try {
+
+    if (!documentoBase64) {
+      throw new Error('El documento en Base64 está vacío');
+    }
     const response = await axios.post(url, form, {
       headers: {
         'Authorization': `Bearer ${accessToken}`,
@@ -131,6 +136,8 @@ const getDocumentFromS3 = async (bucket, key) => {
 
     
   try {
+
+
     
     const command = new GetObjectCommand({Bucket: bucket, Key: key });
     const { ContentType, Body } = await client.send(command);
@@ -138,7 +145,11 @@ const getDocumentFromS3 = async (bucket, key) => {
   
     // Usa ContentType como fallback
     const mimeType = ContentType || 'application/octet-stream';
-  
+      // En el try catch de getDocumentFromS3
+    if (!buffer) {
+      throw new Error('No se pudo obtener el buffer del documento de S3');
+    }
+
 
   // Convertir el buffer a base64
   const documentoBase64 = buffer.toString('base64');
