@@ -120,6 +120,8 @@ const getDocumentFromS3 = async (bucket, key) => {
   } catch (error) {
     if (error.message.includes("bucketName.split")) {
       console.error("Error específico con el bucket:", bucket);
+      console.error(bucket);
+      console.log(bucket);
     }
     throw error;
   }
