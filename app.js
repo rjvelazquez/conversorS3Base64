@@ -67,7 +67,6 @@ const enviarADocumentoMortgageBot = async (loanId, bucket, key, accessToken) => 
     useBarcode: 'true', // Ajusta según sea necesario
     fileType: fileType,
     embeddedContent: documentoBase64,
-    name: key, // Suponiendo que 'key' es el nombre del archivo
   };
   try {
     const response = await axios.post(url, data, {
@@ -117,7 +116,6 @@ const getDocumentFromS3 = async (bucket, key) => {
     if (error.message.includes("bucketName.split")) {
       console.error("Error específico con el bucket:", bucket);
       console.error(bucket);
-      console.log(bucket);
     }
     throw error;
   }
@@ -138,6 +136,5 @@ function streamToBuffer(stream) {
 const PORT = process.env.PORT || 8081;
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en el puerto ${PORT}`);
-    console.log(process.env.AWS_REGION, process.env.AWS_ACCESS_KEY_ID, process.env.AWS_SECRET_ACCESS_KEY);
   });
 
