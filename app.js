@@ -101,7 +101,6 @@ const getDocumentFromS3 = async (bucket, key) => {
   
 
   
-  try {
     
     console.log(bucket);
     const command = new GetObjectCommand({Bucket: bucket, Key: key });
@@ -120,14 +119,7 @@ const getDocumentFromS3 = async (bucket, key) => {
     console.log(key);
 
     return { documentoBase64, fileType };
-  } catch (error) {
-    if (error.message.includes("bucketName.split")) {
-      console.error("Error específico con el bucket:", bucket);
-      console.error(bucket);
-      console.log(bucket);
-    }
-    throw error;
-  }
+
 };
 
 
