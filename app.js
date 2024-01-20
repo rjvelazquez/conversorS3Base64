@@ -102,7 +102,7 @@ const getDocumentFromS3 = async (bucket, key) => {
 
   
   try {
-    bucket = bucket.toString;
+    bucket = bucket.toString();
     
     console.log(bucket);
     const command = new GetObjectCommand({Bucket: bucket, Key: key });
