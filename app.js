@@ -98,13 +98,11 @@ const getDocumentFromS3 = async (bucket, key) => {
     }
   });
 
-  const command = new GetObjectCommand({
-    Bucket: bucket,
-    Key: key
-  });
+  
 
   
   try {
+    const command = new GetObjectCommand({Bucket: bucket, Key: key });
     const { ContentType, Body } = await client.send(command);
     
     // Recopilar datos del stream en un buffer
