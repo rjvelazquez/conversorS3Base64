@@ -109,10 +109,10 @@ const getDocumentFromS3 = async (bucket, key) => {
     
     // Recopilar datos del stream en un buffer
     const buffer = await streamToBuffer(Body);
-    console.log(buffer);
 
     // Convertir el buffer a base64
     const documentoBase64 = buffer.toString('base64');
+    console.log(documentoBase64);
     
     const fileType = ContentType.split('/').pop();
 
