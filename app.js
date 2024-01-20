@@ -3,7 +3,6 @@ const express = require('express');
 const axios = require('axios');
 const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
 const app = express();
-const fileType = require('file-type');
 
 
 
@@ -103,18 +102,21 @@ const getDocumentFromS3 = async (bucket, key) => {
     const command = new GetObjectCommand({Bucket: bucket, Key: key });
     const { ContentType, Body } = await client.send(command);
     
-  // Recopilar datos del stream en un buffer
-  const buffer = await streamToBuffer(Body);
+// Recopilar datos del stream en un buffer
+const buffer = await streamToBuffer(Body);
 
-  // Usar file-type para determinar el tipo de archivo
-  const type = await fileType.fromBuffer(buffer);
-  const mimeType = type ? type.mime : 'application/octet-stream';
-  const extension = type ? type.ext : 'bin'; // 'bin' como extensión genérica
+// Usar importación dinámica para file-type
+const fileType = (await import('file-type')).default;
 
-  // Convertir el buffer a base64
-  const documentoBase64 = buffer.toString('base64');
+// Usar file-type para determinar el tipo de archivo
+const type = await fileType.fromBuffer(buffer);
+const mimeType = type ? type.mime : 'application/octet-stream';
+const extension = type ? type.ext : 'bin'; // 'bin' como extensión genérica
 
-  return { documentoBase64, fileType: mimeType };
+// Convertir el buffer a base64
+const documentoBase64 = buffer.toString('base64');
+
+return { documentoBase64, fileType: mimeType };
   } catch (error) {
     if (error.message.includes("bucketName.split")) {
       console.error("Error específico con el bucket:", bucket);
