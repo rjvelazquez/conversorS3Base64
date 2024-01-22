@@ -78,7 +78,7 @@ app.post('/authenticate', (req, res) => {
 app.post('/enviar-a-mortgagebot', verificarToken, async (req, res) => {
   const { loanId, bucket, key, name } = req.body; // Cambiado a req.body para POST
   console.log('Se recibió una solicitud');
-  //console.log('Bucket:', bucket, 'Key:', key);
+  console.log('Bucket:', bucket, 'Key:', key);
   //console.log('Tipo de Bucket:', typeof bucket, 'Tipo de Key:', typeof key);
 
   try {
