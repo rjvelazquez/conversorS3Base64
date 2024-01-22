@@ -32,6 +32,7 @@ function verificarToken(req, res, next) {
 
   // Dividir el encabezado para obtener el token
   const token = authHeader.split(' ')[1]; // Token es el segundo elemento después de "Bearer"
+  console.log(token);
 
   try {
     const verificado = jwt.verify(token, process.env.JWT_SECRET_KEY);
