@@ -22,6 +22,8 @@ const s3 = new S3Client({
 function verificarToken(req, res, next) {
   const token = req.headers['authorization'];
   if (!token) return res.status(401).send('Acceso denegado. No se proporcionó token.');
+  console.log('Token proporcionado');
+  console.log(token);
 
   try {
     const verificado = jwt.verify(token, process.env.JWT_SECRET_KEY);
@@ -41,6 +43,8 @@ app.post('/authenticate', (req, res) => {
   if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
     const token = jwt.sign({ username }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
     res.json({ token });
+    console.log('Token solicitado');
+    console.log(token);
   } else {
     res.status(401).send('Credenciales incorrectas');
   }
