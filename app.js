@@ -21,18 +21,41 @@ const s3 = new S3Client({
 // Middleware para verificar el token
 function verificarToken(req, res, next) {
   const token = req.headers['authorization'];
-  if (!token) return res.status(401).send('Acceso denegado. No se proporcionó token.');
-  console.log('Token proporcionado');
-  console.log(token);
+
+  if (!token) {
+    return res.status(401).json({
+      success: false,
+      message: 'Acceso denegado. No se proporcionó token.'
+    });
+  }
 
   try {
     const verificado = jwt.verify(token, process.env.JWT_SECRET_KEY);
     req.usuario = verificado;
-    next(); // Continuar si el token es válido
+    next();
   } catch (error) {
-    res.status(400).send('Token inválido');
+    let mensajeError = 'Token inválido';
+    let statusCode = 400;
+
+    if (error instanceof jwt.JsonWebTokenError) {
+      // Errores específicos de JWT, como firma inválida o token mal formado
+      mensajeError = 'Token inválido o mal formado';
+    } else if (error instanceof jwt.TokenExpiredError) {
+      // Errores específicos para tokens expirados
+      mensajeError = 'Token expirado';
+      statusCode = 401;
+    } else if (error instanceof jwt.NotBeforeError) {
+      // Errores específicos para tokens no utilizables aún (por "nbf" claim)
+      mensajeError = 'Token aún no válido';
+    }
+
+    res.status(statusCode).json({
+      success: false,
+      message: mensajeError
+    });
   }
 }
+
 
 
 // Endpoint para autenticación y generación de token
