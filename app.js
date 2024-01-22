@@ -37,6 +37,7 @@ function verificarToken(req, res, next) {
   try {
     const verificado = jwt.verify(token, process.env.JWT_SECRET_KEY);
     req.usuario = verificado;
+    console.log('Token verificado');
     next();
   } catch (error) {
     let mensajeError = 'Token inválido';
