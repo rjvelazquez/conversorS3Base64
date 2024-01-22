@@ -2,9 +2,10 @@ require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
+const jwt = require('jsonwebtoken'); // Importa jsonwebtoken
 const app = express();
 
- 
+app.use(express.json()); // Para analizar el cuerpo de las solicitudes POST
 
 
 // Configura AWS SDK v3
@@ -17,16 +18,44 @@ const s3 = new S3Client({
 });
 
 
+// Middleware para verificar el token
+function verificarToken(req, res, next) {
+  const token = req.headers['authorization'];
+  if (!token) return res.status(401).send('Acceso denegado. No se proporcionó token.');
+
+  try {
+    const verificado = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    req.usuario = verificado;
+    next(); // Continuar si el token es válido
+  } catch (error) {
+    res.status(400).send('Token inválido');
+  }
+}
+
+
+// Endpoint para autenticación y generación de token
+app.post('/authenticate', (req, res) => {
+  const { username, password } = req.body;
+
+  // Utiliza las variables de entorno para las credenciales
+  if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
+    const token = jwt.sign({ username }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
+    res.json({ token });
+  } else {
+    res.status(401).send('Credenciales incorrectas');
+  }
+});
+
 // Endpoint para recibir datos y enviarlos a MortgageBot
-app.get('/enviar-a-mortgagebot', async (req, res) => {
-  const { loanId, bucket, key } = req.query;
-  console.log('Se recibio una solicitud');
+app.post('/enviar-a-mortgagebot', verificarToken, async (req, res) => {
+  const { loanId, bucket, key, name } = req.body; // Cambiado a req.body para POST
+  console.log('Se recibió una solicitud');
   console.log('Bucket:', bucket, 'Key:', key);
   console.log('Tipo de Bucket:', typeof bucket, 'Tipo de Key:', typeof key);
 
   try {
     const accessToken = await obtenerAccessToken();
-    const respuestaMortgageBot = await enviarADocumentoMortgageBot(loanId, bucket, key, accessToken);
+    const respuestaMortgageBot = await enviarADocumentoMortgageBot(loanId, bucket, key, accessToken, name);
     console.log('Respuesta de MortgageBot:', respuestaMortgageBot);
 
     res.json({ mensaje: 'Documento enviado con éxito', respuesta: respuestaMortgageBot });
@@ -77,14 +106,14 @@ const obtenerAccessToken = async () => {
 
 const FormData = require('form-data');
 
-const enviarADocumentoMortgageBot = async (loanId, bucket, key, accessToken) => {
+const enviarADocumentoMortgageBot = async (loanId, bucket, key, accessToken, name) => {
   const { documentoBase64, fileType } = await getDocumentFromS3(bucket, key);
   
 
   const url = `https://api.fusionfabric.cloud/mortgagebot/los/document/v1/loans/${loanId}/documents`;
   
   const form = new FormData();
-  form.append('documentType', 'ID'); // Ajusta este valor si es necesario
+  form.append('documentType', name); // Ajusta este valor si es necesario
   form.append('useBarcode', 'true'); // Ajusta este valor si es necesario
   form.append('fileType', fileType); // 'pdf', 'png', etc.
   form.append('embeddedContent', documentoBase64);
