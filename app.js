@@ -163,7 +163,7 @@ const enviarADocumentoMortgageBot = async (loanId, bucket, key, accessToken, nam
     const response = await axios.post(url, form, {
       headers: {
         'Authorization': `Bearer ${accessToken}`,
-        ...form.getHeaders(),
+        //...form.getHeaders(),
         'Idempotency-Key': idempotencyKey
       }
     });
