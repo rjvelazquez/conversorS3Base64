@@ -109,6 +109,8 @@ app.post('/enviar-a-mortgagebot', verificarToken, async (req, res) => {
 
 
 
+
+
 const obtenerAccessToken = async () => {
   const clientId = process.env.CLIENT_ID;
   const clientSecret = process.env.CLIENT_SECRET;
@@ -150,6 +152,9 @@ const enviarADocumentoMortgageBot = async (loanId, bucket, key, accessToken, nam
   const idempotencyKey = generateIdempotencyKey();
 
   try {
+    console.log('Preparando para enviar solicitud a MortgageBot');
+    console.log(`URL: ${url}`);
+    console.log('Headers:', form.getHeaders());
 
     if (!documentoBase64) {
       throw new Error('El documento en Base64 está vacío');
@@ -162,9 +167,14 @@ const enviarADocumentoMortgageBot = async (loanId, bucket, key, accessToken, nam
         'Idempotency-Key': idempotencyKey
       }
     });
+
+    console.log('Respuesta recibida de MortgageBot:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error al enviar el documento a MortgageBot:', error);
+    if (error.response) {
+      console.error('Detalle de la respuesta de error:', error.response);
+    }
     throw error;
   }
 };
