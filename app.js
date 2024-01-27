@@ -143,6 +143,9 @@ const enviarADocumentoMortgageBot = async (loanId, bucket, key, accessToken, nam
   const url = `https://api.fusionfabric.cloud/mortgagebot/los/document/v1/loans/${loanId}/documents`;
   
   const form = new FormData();
+  
+// Ajusta el tamaño máximo del formulario
+  form.maxDataSize = 100 * 1024 * 1024; // Por ejemplo, 10 MB
   form.append('documentType', name); // Ajusta este valor si es necesario
   form.append('useBarcode', 'true'); // Ajusta este valor si es necesario
   form.append('fileType', fileType); // 'pdf', 'png', etc.
@@ -168,7 +171,6 @@ const enviarADocumentoMortgageBot = async (loanId, bucket, key, accessToken, nam
       }
     });
 
-    console.log('Respuesta recibida de MortgageBot:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error al enviar el documento a MortgageBot:', error);
