@@ -151,7 +151,7 @@ const enviarADocumentoMortgageBot = async (loanId, bucket, key, accessToken, nam
   form.append('fileType', fileType); // 'pdf', 'png', etc.
   form.append('embeddedContent', documentoBase64);
 
-  console.log('Base 64: '+documentoBase64);
+  console.log('Base 64: ' + documentoBase64.substring(0, 100));
 
   // Genera un Idempotency-Key único para cada solicitud
   const idempotencyKey = generateIdempotencyKey();
