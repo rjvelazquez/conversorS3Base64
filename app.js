@@ -107,6 +107,40 @@ app.post('/enviar-a-mortgagebot', verificarToken, async (req, res) => {
   }
 });
 
+app.post('/enviar-fragmentos', verificarToken, async (req, res) => {
+  const { loanId, bucket, key, name } = req.body;
+  try {
+    const accessToken = await obtenerAccessToken();
+    await enviarFragmentosProgresivos(loanId, bucket, key, accessToken, name);
+    res.json({ mensaje: 'Prueba de envío de fragmentos completada' });
+  } catch (error) {
+    console.error('Error al procesar la solicitud:', error);
+    res.status(500).send('Error al enviar fragmentos progresivos');
+  }
+});
+
+
+const enviarFragmentosProgresivos = async (loanId, bucket, key, accessToken, name) => {
+  const { documentoBase64, fileType } = await getDocumentFromS3(bucket, key);
+
+  let tamañoFragmento = 1000000; // Tamaño inicial en bytes
+  const incremento = 1000000; // Incremento en bytes
+  const tamañoMaximo = Buffer.byteLength(documentoBase64, 'utf-8');
+
+  while (tamañoFragmento <= tamañoMaximo) {
+    try {
+      console.log(`Enviando fragmento de tamaño: ${tamañoFragmento} bytes`);
+      const fragmento = documentoBase64.substring(0, tamañoFragmento);
+      const respuesta = await enviarADocumentoMortgageBot(loanId, fragmento, fileType, accessToken, name);
+      console.log('Fragmento enviado con éxito', respuesta);
+      tamañoFragmento += incremento;
+    } catch (error) {
+      console.error(`Error al enviar fragmento de tamaño: ${tamañoFragmento} bytes`, error);
+      break;
+    }
+  }
+};
+
 
 
 
