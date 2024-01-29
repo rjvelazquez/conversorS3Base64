@@ -133,9 +133,11 @@ const enviarFragmentosProgresivos = async (loanId, bucket, key, accessToken, nam
       const fragmento = documentoBase64.substring(0, tamañoFragmento);
       const respuesta = await enviarADocumentoMortgageBot(loanId, fragmento, fileType, accessToken, name);
       console.log('Fragmento enviado con éxito', respuesta);
+      console.log('Fragmento enviado con éxito');
       tamañoFragmento += incremento;
     } catch (error) {
       console.error(`Error al enviar fragmento de tamaño: ${tamañoFragmento} bytes`, error);
+      console.error(`Error al enviar fragmento de tamaño: ${tamañoFragmento} bytes`);
       break;
     }
   }
