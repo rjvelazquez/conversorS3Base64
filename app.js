@@ -119,7 +119,6 @@ app.post('/enviar-fragmentos', verificarToken, async (req, res) => {
   }
 });
 
-
 const enviarFragmentosProgresivos = async (loanId, bucket, key, accessToken, name) => {
   const { documentoBase64, fileType } = await getDocumentFromS3(bucket, key);
 
@@ -128,20 +127,19 @@ const enviarFragmentosProgresivos = async (loanId, bucket, key, accessToken, nam
   const tamañoMaximo = Buffer.byteLength(documentoBase64, 'utf-8');
 
   while (tamañoFragmento <= tamañoMaximo) {
-    try {
-      console.log(`Enviando fragmento de tamaño: ${tamañoFragmento} bytes`);
-      const fragmento = documentoBase64.substring(0, tamañoFragmento);
-      const respuesta = await enviarADocumentoMortgageBot(loanId, fragmento, fileType, accessToken, name);
-      console.log('Fragmento enviado con éxito', respuesta);
-      console.log('Fragmento enviado con éxito');
-      tamañoFragmento += incremento;
-    } catch (error) {
-      console.error(`Error al enviar fragmento de tamaño: ${tamañoFragmento} bytes`, error);
-      console.error(`Error al enviar fragmento de tamaño: ${tamañoFragmento} bytes`);
-      break;
-    }
+      try {
+          console.log(`Enviando fragmento de tamaño: ${tamañoFragmento} bytes`);
+          const fragmento = documentoBase64.substring(0, tamañoFragmento);
+          const respuesta = await enviarFragmentoADocumentoMortgageBot(loanId, fragmento, fileType, accessToken, name);
+          console.log('Fragmento enviado con éxito', respuesta);
+          tamañoFragmento += incremento;
+      } catch (error) {
+          console.error(`Error al enviar fragmento de tamaño: ${tamañoFragmento} bytes`, error);
+          break;
+      }
   }
 };
+
 
 
 
@@ -171,6 +169,37 @@ const obtenerAccessToken = async () => {
 };
 
 const FormData = require('form-data');
+
+const enviarFragmentoADocumentoMortgageBot = async (loanId, fragmentoBase64, fileType, accessToken, name) => {
+  const url = `https://api.fusionfabric.cloud/mortgagebot/los/document/v1/loans/${loanId}/documents`;
+
+  const form = new FormData();
+  form.maxDataSize = 100 * 1024 * 1024; // Ajusta según sea necesario
+  form.append('documentType', name);
+  form.append('useBarcode', 'true');
+  form.append('fileType', fileType);
+  form.append('embeddedContent', fragmentoBase64);
+
+  // Genera un Idempotency-Key único para cada solicitud
+  const idempotencyKey = uuidv4();
+
+  try {
+      console.log('Enviando fragmento a MortgageBot');
+      const response = await axios.post(url, form, {
+          headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Idempotency-Key': idempotencyKey,
+              ...form.getHeaders()
+          }
+      });
+
+      return response.data;
+  } catch (error) {
+      console.error('Error al enviar el fragmento a MortgageBot:', error);
+      throw error;
+  }
+};
+
 
 const enviarADocumentoMortgageBot = async (loanId, bucket, key, accessToken, name) => {
   const { documentoBase64, fileType } = await getDocumentFromS3(bucket, key);
