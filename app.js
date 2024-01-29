@@ -216,6 +216,8 @@ const getDocumentFromS3 = async (bucket, key) => {
 
     // Convertir el buffer a base64
     const documentoBase64 = buffer.toString('base64');
+    console.log('Tamaño de la cadena base64 (bytes):', Buffer.byteLength(documentoBase64, 'utf-8'));
+
 
     return { documentoBase64, fileType: extension };
   } catch (error) {
