@@ -195,7 +195,7 @@ const enviarFragmentoADocumentoMortgageBot = async (loanId, fragmentoBase64, fil
 
       return response.data;
   } catch (error) {
-      console.error('Error al enviar el fragmento a MortgageBot:', error);
+      console.error('Error al enviar el fragmento a MortgageBot:');
       throw error;
   }
 };
