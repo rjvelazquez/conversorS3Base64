@@ -4,6 +4,8 @@ const axios = require('axios');
 const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
 const jwt = require('jsonwebtoken'); // Importa jsonwebtoken
 const app = express();
+const sharp = require('sharp');
+
 
 app.use(express.json()); // Para analizar el cuerpo de las solicitudes POST
 
@@ -271,6 +273,8 @@ const getDocumentFromS3 = async (bucket, key) => {
     const command = new GetObjectCommand({Bucket: bucket, Key: key });
     const { ContentType, Body } = await client.send(command);
     const buffer = await streamToBuffer(Body);
+    let fileType;
+
   
     if (!buffer) {
       throw new Error('No se pudo obtener el buffer del documento de S3');
@@ -279,12 +283,30 @@ const getDocumentFromS3 = async (bucket, key) => {
     // Extraer la extensión del archivo del nombre del archivo (key)
     const extension = key.split('.').pop();
 
-    // Convertir el buffer a base64
-    const documentoBase64 = buffer.toString('base64');
+    if (extension === 'jpg' || extension === 'jpeg') {
+      // Si el archivo es JPG o JPEG, conviértelo a PNG
+      const pngBuffer = await sharp(buffer)
+        .png()
+        .toBuffer();
+      documentoBase64 = pngBuffer.toString('base64');
+      fileType = 'png'; // Establece el tipo de archivo a 'png' para la conversión
+
+    } else {
+      // Si el archivo no es JPG o JPEG, mantén su formato original
+      documentoBase64 = buffer.toString('base64');
+      fileType = extension; // El tipo de archivo es la extensión original
+
+    }
+
     console.log('Tamaño de la cadena base64 (bytes):', Buffer.byteLength(documentoBase64, 'utf-8'));
 
 
-    return { documentoBase64, fileType: extension };
+    // Convertir el buffer a base64
+    //const documentoBase64 = buffer.toString('base64');
+    //console.log('Tamaño de la cadena base64 (bytes):', Buffer.byteLength(documentoBase64, 'utf-8'));
+
+
+    return { documentoBase64, fileType };
   } catch (error) {
     console.error("Error al obtener el documento de S3:", error);
     throw error;
